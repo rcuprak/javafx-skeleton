@@ -1,0 +1,4 @@
+mvnw.cmd eol=crlf
+*.bat text eol=crlf
+*.sln text eol=crlf
+
