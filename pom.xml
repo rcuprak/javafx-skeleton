@@ -5,11 +5,13 @@
     <artifactId>javafx-skeleton</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <inceptionYear>2023</inceptionYear>
-
+<!--
+ TODO finish adding ARM
+-->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <java.version>17</java.version>
-        <javafx.version>${java.version}.0.1</javafx.version>
+        <java.version>22</java.version>
+        <javafx.version>${java.version}</javafx.version>
         <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
         <maven.compiler.plugin.version>3.11.0</maven.compiler.plugin.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -28,6 +30,11 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-swing</artifactId>
+            <version>${javafx.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-fxml</artifactId>
             <version>${javafx.version}</version>
         </dependency>
     </dependencies>
@@ -52,13 +59,16 @@
                         <jreleaser>
                             <environment>
                                 <properties>
-                                    <jdkFilePrefix>zulu17.30.15-ca-jdk17.0.1</jdkFilePrefix>
+                                    <!--
+                                        This is the prefix of the file found int target/jdks/<platform>/
+                                    -->
+                                    <jdkFilePrefix>zulu22.28.91-ca-jdk22.0.0</jdkFilePrefix>
                                     <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
                                 </properties>
                             </environment>
                             <project>
                                 <description>JavaFX Skelton App</description>
-                                <copyright>2023 Cuprak Enterprises</copyright>
+                                <copyright>2024 Cuprak Enterprises</copyright>
                             </project>
                             <assemble>
                                 <jlink>
@@ -74,25 +84,31 @@
                                         <targetJdks>
                                             <targetJdk>
                                                 <path>
-                                                    ${project.build.directory}/jdks/zulu17Osx/{{jdkFilePrefix}}-macosx_x64/zulu-17.jdk/Contents/Home
+                                                    ${project.build.directory}/jdks/osx-intel/{{jdkFilePrefix}}-macosx_x64/zulu-22.jdk/Contents/Home
                                                 </path>
                                                 <platform>osx-x86_64</platform>
                                             </targetJdk>
                                             <targetJdk>
                                                 <path>
-                                                    ${project.build.directory}/jdks/zulu17Linux/{{jdkFilePrefix}}-linux_x64
+                                                    ${project.build.directory}/jdks/osx-arm/{{jdkFilePrefix}}-macosx_aarch64/zulu-22.jdk/Contents/Home
+                                                </path>
+                                                <platform>osx-aarch_64</platform>
+                                            </targetJdk>
+                                            <targetJdk>
+                                                <path>
+                                                    ${project.build.directory}/jdks/linux/{{jdkFilePrefix}}-linux_x64
                                                 </path>
                                                 <platform>linux-x86_64</platform>
                                             </targetJdk>
                                             <targetJdk>
                                                 <path>
-                                                    ${project.build.directory}/jdks/zulu17Windows/{{jdkFilePrefix}}-win_x64
+                                                    ${project.build.directory}/jdks/windows/{{jdkFilePrefix}}-win_x64
                                                 </path>
                                                 <platform>windows-x86_64</platform>
                                             </targetJdk>
                                         </targetJdks>
                                         <additionalModuleNames>
-                                            javafx.base,javafx.graphics,javafx.controls,javafx.swing
+                                            javafx.base,javafx.graphics,javafx.controls,javafx.swing,javafx.fxml
                                         </additionalModuleNames>
                                         <jdeps>
                                             <multiRelease>${java.version}</multiRelease>
@@ -103,12 +119,15 @@
                                         </mainJar>
                                         <jars>
                                             <jar>
-                                                <pattern>${project.build.directory}/repositories/universal/*.jar
-                                                </pattern>
+                                                <pattern>${project.build.directory}/repositories/universal/*.jar</pattern>
                                             </jar>
                                             <jar>
                                                 <pattern>${project.build.directory}/repositories/osx/*.jar</pattern>
                                                 <platform>osx-x86_64</platform>
+                                            </jar>
+                                            <jar>
+                                                <pattern>${project.build.directory}/repositories/osx/*.jar</pattern>
+                                                <platform>osx-aarch64</platform>
                                             </jar>
                                             <jar>
                                                 <pattern>${project.build.directory}/repositories/windows/*.jar</pattern>
@@ -172,8 +191,8 @@
                                             <platform>osx-x86_64</platform>
                                         </artifact>
                                         <artifact>
-                                            <path>{{jpackageDir}}/JavaFX-Skeleton-{{projectVersionNumber}}-osx-x86_64.dmg</path>
-                                            <platform>osx-x86_64</platform>
+                                            <path>{{jpackageDir}}/JavaFX-Skeleton-{{projectVersionNumber}}-osx-aarch_64.dmg</path>
+                                            <platform>osx-aarch64</platform>
                                         </artifact>
                                         <artifact>
                                             <path>{{jpackageDir}}/javafx_skeleton_{{projectVersionNumber}}-1_amd64.deb</path>
@@ -284,21 +303,29 @@
                         <artifactId>jdks-maven-plugin</artifactId>
                         <version>${jreleaser-plugin.version}</version>
                         <configuration>
+                            <!-- Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html -->
                             <pkgs>
                                 <pkg>
-                                    <name>zulu17Linux</name>
+                                    <name>linux</name>
                                     <platform>linux-x86_64</platform>
-                                    <version>${javafx.version}</version>
+                                    <version>${java.version}</version>
                                 </pkg>
                                 <pkg>
-                                    <name>zulu17Osx</name>
+                                    <name>osx-intel</name>
+
                                     <platform>osx-x86_64</platform>
-                                    <version>${javafx.version}</version>
+                                    <version>${java.version}</version>
                                 </pkg>
                                 <pkg>
-                                    <name>zulu17Windows</name>
+                                    <name>osx-arm</name>
+                                    <platform>osx-aarch64</platform>
+
+                                    <version>${java.version}</version>
+                                </pkg>
+                                <pkg>
+                                    <name>windows</name>
                                     <platform>windows-x86_64</platform>
-                                    <version>${javafx.version}</version>
+                                    <version>${java.version}</version>
                                 </pkg>
                             </pkgs>
                         </configuration>
