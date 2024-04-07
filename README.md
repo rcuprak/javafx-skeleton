@@ -1,4 +1,5 @@
-# javafx-skeleton
+
+# javafx-skeleton ![Building](https://github.com/rcuprak/javafx-skeleton/actions/workflows/maven.yml/badge.svg)
 
 This is an example project demonstrating how to easily build, bundle and distribute a [JavaFX](https://openjfx.io) desktop application.
 The output of this project are native installers which install the application the requisite pieces of the JDK.
