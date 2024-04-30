@@ -33,4 +33,9 @@ This example project produces the following bundles:
 ./mvnw -Passemble
 ```
 
+To run all of them:
+```
+./mvnw verify -Pjars,jdks,assemble
+```
+
 Assembled distributions located at: `target/jreleaser/assemble/`.

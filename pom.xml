@@ -146,23 +146,33 @@
                                         <jlink>javafx-skeleton-jlink</jlink>
                                         <attachPlatform>true</attachPlatform>
                                         <exported>false</exported>
+                                        <launcher>
+                                            <javaOptions>-Xmx2048m</javaOptions>
+                                        </launcher>
                                         <applicationPackage>
-                                            <appName>javafx-skeleton</appName>
+                                            <appName>JavaFX-Skeleton</appName>
                                             <appVersion>{{projectVersionNumber}}</appVersion>
-                                            <vendor>JReleaser</vendor>
+                                            <vendor>Cuprak Enterprises LLC</vendor>
+                                            <copyright>Cuprak Enterprises LLC 2024</copyright>
                                         </applicationPackage>
                                         <osx>
-                                            <types>pkg,dmg</types>
                                             <appName>JavaFX-Skeleton</appName>
+                                            <types>pkg,dmg</types>
                                             <packageName>JavaFX-Skeleton</packageName>
+                                            <icon>src/main/resources/net/cuprak/sample/appicon.icns</icon>
                                             <packageIdentifier>${application.main.module}.javafx-skeleton</packageIdentifier>
                                         </osx>
                                         <linux>
+                                            <appName>JavaFX-Skeleton</appName>
                                             <types>rpm,deb</types>
+                                            <icon>src/main/resources/net/cuprak/sample/appicon.png</icon>
                                             <maintainer>rcuprak@mac.com</maintainer>
                                         </linux>
                                         <windows>
+                                            <appName>JavaFX-Skeleton</appName>
                                             <types>msi</types>
+                                            <icon>src/main/resources/net/cuprak/sample/appicon.ico</icon>
+                                            <menu>true</menu>
                                         </windows>
                                     </javafx-skeleton-installer>
                                 </jpackage>
