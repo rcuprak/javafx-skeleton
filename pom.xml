@@ -62,7 +62,7 @@
                                     <!--
                                         This is the prefix of the file found int target/jdks/<platform>/
                                     -->
-                                    <jdkFilePrefix>zulu22.28.91-ca-jdk22.0.0</jdkFilePrefix>
+                                    <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
                                     <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
                                 </properties>
                             </environment>
@@ -314,27 +314,32 @@
                         <version>${jreleaser-plugin.version}</version>
                         <configuration>
                             <!-- Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html -->
-                            <pkgs>
-                                <pkg>
+                            <jdks>
+                                <jdk>
                                     <name>linux</name>
                                     <platform>linux-x86_64</platform>
-                                    <version>${java.version}</version>
-                                </pkg>
+                                    <url>https://cdn.azul.com/zulu/bin/zulu22.28.91-ca-fx-jdk22.0.0-linux_x64.tar.gz</url>
+                                    <checksum>faa52b67e1a5b2948fdd12d301b804b459b40747f35ff543d56525ea693673fd</checksum>
+                                </jdk>
+                            </jdks>
+                            <pkgs>
+                            
                                 <pkg>
                                     <name>osx-intel</name>
-
                                     <platform>osx-x86_64</platform>
+                                    <javafxBundled>true</javafxBundled>
                                     <version>${java.version}</version>
                                 </pkg>
                                 <pkg>
                                     <name>osx-arm</name>
                                     <platform>osx-aarch64</platform>
-
+                                    <javafxBundled>true</javafxBundled>
                                     <version>${java.version}</version>
                                 </pkg>
                                 <pkg>
                                     <name>windows</name>
                                     <platform>windows-x86_64</platform>
+                                    <javafxBundled>true</javafxBundled>
                                     <version>${java.version}</version>
                                 </pkg>
                             </pkgs>
@@ -345,6 +350,7 @@
                                 <phase>generate-resources</phase>
                                 <goals>
                                     <goal>setup-disco</goal>
+                                    <goal>setup-jdks</goal>
                                 </goals>
                             </execution>
                         </executions>
