@@ -280,7 +280,7 @@ if [ -n "$wrapperSha256Sum" ]; then
   fi
 fi
 
-MAVEN_OPTS="$(concat_lines "$MAVEN_PROJECTBASEDIR/.mvn/jvm.config") $MAVEN_OPTS"
+MAVEN_OPTS="$(concat_lines "$MAVEN_PROJECTBASEDIR/.mvn/jvm.config") $MAVEN_OPTS -Xmx512m"
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then

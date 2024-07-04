@@ -20,6 +20,7 @@
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <jreleaser-plugin.version>1.12.0</jreleaser-plugin.version>
+        <jreleaser.config.assembly>true</jreleaser.config.assembly>
         <application.main.module>net.cuprak.sample</application.main.module>
         <application.main.class>${application.main.module}.JavaFXSkeletonApp</application.main.class>
     </properties>
@@ -51,7 +52,6 @@
                 <version>1.7.1</version>
             </extension>
         </extensions>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -79,21 +79,110 @@
                                 <description>JavaFX Skelton App -2-</description>
                                 <copyright>2024 Cuprak Enterprises</copyright>
                             </project>
+                            <assemble>
+                                <jlink>
+                                    <javafx-skeleton-jlink>
+                                        <active>ALWAYS</active>
+                                        <java>
+                                            <version>${java.version}</version>
+                                            <mainClass>${application.main.class}</mainClass>
+                                            <mainModule>${application.main.module}</mainModule>
+                                        </java>
+                                        <imageName>javafx-skeleton-{{projectVersion}}</imageName>
+                                        <executable>javafx-skeleton</executable>
+                                        <additionalModuleNames>
+                                            javafx.base,javafx.graphics,javafx.controls,javafx.swing,javafx.fxml
+                                        </additionalModuleNames>
+                                        <jdeps>
+                                            <multiRelease>${java.version}</multiRelease>
+                                            <ignoreMissingDeps>true</ignoreMissingDeps>
+                                        </jdeps>
+                                        <mainJar>
+                                            <path>${project.build.directory}/${project.build.finalName}.jar</path>
+                                        </mainJar>
+                                    </javafx-skeleton-jlink>
+                                </jlink>
+                                <jpackage>
+                                    <javafx-skeleton-installer>
+                                        <active>ALWAYS</active>
+                                        <jlink>javafx-skeleton-jlink</jlink>
+                                        <attachPlatform>true</attachPlatform>
+                                        <exported>false</exported>
+                                        <applicationPackage>
+                                            <appName>JavaFX-Skeleton</appName>
+                                            <appVersion>{{projectVersionNumber}}</appVersion>
+                                            <vendor>JReleaser</vendor>
+                                        </applicationPackage>
+                                    </javafx-skeleton-installer>
+                                </jpackage>
+                            </assemble>
+                            <release>
+                                <github>
+                                    <overwrite>true</overwrite>
+                                    <changelog>
+                                        <formatted>ALWAYS</formatted>
+                                        <preset>conventional-commits</preset>
+                                        <contributors>
+                                            <format>- {{contributorName}}</format>
+                                        </contributors>
+                                        <hide>
+                                            <categories>merge</categories>
+                                            <contributors>GitHub,dependabot</contributors>
+                                        </hide>
+                                    </changelog>
+                                </github>
+                            </release>
                         </jreleaser>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.5.0</version>
+                    <executions>
+                        <execution>
+                            <id>universal</id>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/repositories/universal</outputDirectory>
+                                <excludeClassifiers>mac,win,linux</excludeClassifiers>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <phase>prepare-package</phase>
+                            <goals>
+                                <goal>copy-dependencies</goal>
+                            </goals>
+                            <configuration>
+                                <outputDirectory>${project.build.directory}/repositories/osx</outputDirectory>
+                                <classifier>mac</classifier>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.jreleaser</groupId>
+                    <artifactId>jdks-maven-plugin</artifactId>
+                    <version>${jreleaser-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>download-jdks</id>
+                            <phase>generate-resources</phase>
+			    <!--  <goals>
+				                                  <goal>setup-disco</goal>
+				    </goals>
+			    -->
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
     </build>
 
     <profiles>
-
-<!--
-Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
-<defaultGoal>package</defaultGoal>
-<defaultGoal>generate-resources</defaultGoal>
-<defaultGoal>generate-resources</defaultGoal>
--->
         <profile>
             <id>release</id>
             <build>
@@ -121,15 +210,11 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
         -->
         <profile>
             <id>osx_arm</id>
-            <properties>
-                <jreleaser.config.assembly>true</jreleaser.config.assembly>
-            </properties>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
-                    <!--    <version>${jreleaser-plugin.version}</version> -->
                         <configuration>
                             <jreleaser>
                                 <environment>
@@ -137,27 +222,14 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
                                         <!--
                                             This is the prefix of the file found int target/jdks/<platform>/
                                         -->
-                                        <jdkFilePrefix>zulu22.28.91-ca-jdk22.0.0</jdkFilePrefix>
+                                        <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
                                         <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
                                     </properties>
                                 </environment>
-                                <!--
-                                <project>
-                                    <description>JavaFX Skelton App</description>
-                                    <copyright>2024 Cuprak Enterprises</copyright>
-                                </project>
-                                -->
                                 <assemble>
                                     <jlink>
                                         <javafx-skeleton-jlink>
                                             <active>ALWAYS</active>
-                                            <java>
-                                                <version>${java.version}</version>
-                                                <mainClass>${application.main.class}</mainClass>
-                                                <mainModule>${application.main.module}</mainModule>
-                                            </java>
-                                            <imageName>javafx-skeleton-{{projectVersion}}</imageName>
-                                            <executable>javafx-skeleton</executable>
                                             <targetJdks>
                                                 <targetJdk>
                                                     <path>
@@ -166,16 +238,6 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
                                                     <platform>osx-aarch_64</platform>
                                                 </targetJdk>
                                             </targetJdks>
-                                            <additionalModuleNames>
-                                                javafx.base,javafx.graphics,javafx.controls,javafx.swing,javafx.fxml
-                                            </additionalModuleNames>
-                                            <jdeps>
-                                                <multiRelease>${java.version}</multiRelease>
-                                                <!--
-                                                TODO why ignore missing dependencie?
-                                                -->
-                                                <ignoreMissingDeps>true</ignoreMissingDeps>
-                                            </jdeps>
                                             <mainJar>
                                                 <path>${project.build.directory}/${project.build.finalName}.jar</path>
                                             </mainJar>
@@ -192,15 +254,6 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
                                     </jlink>
                                     <jpackage>
                                         <javafx-skeleton-installer>
-                                            <active>ALWAYS</active>
-                                            <jlink>javafx-skeleton-jlink</jlink>
-                                            <attachPlatform>true</attachPlatform>
-                                            <exported>false</exported>
-                                            <applicationPackage>
-                                                <appName>JavaFX-Skeleton</appName>
-                                                <appVersion>{{projectVersionNumber}}</appVersion>
-                                                <vendor>JReleaser</vendor>
-                                            </applicationPackage>
                                             <osx>
                                                 <types>pkg,dmg</types>
                                                 <appName>JavaFX-Skeleton</appName>
@@ -210,22 +263,6 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
                                         </javafx-skeleton-installer>
                                     </jpackage>
                                 </assemble>
-                                <release>
-                                    <github>
-                                        <overwrite>true</overwrite>
-                                        <changelog>
-                                            <formatted>ALWAYS</formatted>
-                                            <preset>conventional-commits</preset>
-                                            <contributors>
-                                                <format>- {{contributorName}}</format>
-                                            </contributors>
-                                            <hide>
-                                                <categories>merge</categories>
-                                                <contributors>GitHub,dependabot</contributors>
-                                            </hide>
-                                        </changelog>
-                                    </github>
-                                </release>
                                 <distributions>
                                     <javafx-skeleton-installer>
                                         <artifacts>
@@ -248,30 +285,94 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
                         </executions>
                     </plugin>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-dependency-plugin</artifactId>
-                        <version>3.5.0</version>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jdks-maven-plugin</artifactId>
+                        <version>${jreleaser-plugin.version}</version>
+                        <configuration>
+                            <pkgs>
+                                <pkg>
+                                    <name>osx-arm</name>
+                                    <javafxBundled>true</javafxBundled>
+                                    <platform>osx-aarch64</platform>
+                                    <version>${java.version}</version>
+                                </pkg>
+                            </pkgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>osx_intel</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <configuration>
+                            <jreleaser>
+                                <environment>
+                                    <properties>
+                                        <!--
+                                            This is the prefix of the file found int target/jdks/<platform>/
+                                        -->
+                                        <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
+                                        <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
+                                    </properties>
+                                </environment>
+                                <assemble>
+                                    <jlink>
+                                        <javafx-skeleton-jlink>
+                                            <active>ALWAYS</active>
+                                            <targetJdks>
+                                                <targetJdk>
+                                                    <path>
+                                                        ${project.build.directory}/jdks/osx-intel/{{jdkFilePrefix}}-macosx_x64/zulu-22.jdk/Contents/Home
+                                                    </path>
+                                                    <platform>osx-x86_64</platform>
+                                                </targetJdk>
+                                            </targetJdks>
+                                            <jars>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/universal/*.jar</pattern>
+                                                </jar>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/osx/*.jar</pattern>
+                                                    <platform>osx-x86_64</platform>
+                                                </jar>
+                                            </jars>
+                                        </javafx-skeleton-jlink>
+                                    </jlink>
+                                    <jpackage>
+                                        <javafx-skeleton-installer>
+                                            <osx>
+                                                <types>pkg,dmg</types>
+                                                <appName>JavaFX-Skeleton</appName>
+                                                <packageName>JavaFX-Skeleton</packageName>
+                                                <packageIdentifier>${application.main.module}.javafx-skeleton</packageIdentifier>
+                                            </osx>
+                                        </javafx-skeleton-installer>
+                                    </jpackage>
+                                </assemble>
+                                <distributions>
+                                    <javafx-skeleton-installer>
+                                        <artifacts>
+                                            <artifact>
+                                                <path>{{jpackageDir}}/JavaFX-Skeleton.dmg</path>
+                                                <platform>osx-x86_64</platform>
+                                            </artifact>
+                                        </artifacts>
+                                    </javafx-skeleton-installer>
+                                </distributions>
+                            </jreleaser>
+                        </configuration>
                         <executions>
                             <execution>
-                                <id>universal</id>
-                                <phase>prepare-package</phase>
+                                <phase>package</phase>
                                 <goals>
-                                    <goal>copy-dependencies</goal>
+                                    <goal>assemble</goal>
                                 </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/repositories/universal</outputDirectory>
-                                    <excludeClassifiers>mac,win,linux</excludeClassifiers>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <phase>prepare-package</phase>
-                                <goals>
-                                    <goal>copy-dependencies</goal>
-                                </goals>
-                                <configuration>
-                                    <outputDirectory>${project.build.directory}/repositories/osx</outputDirectory>
-                                    <classifier>mac</classifier>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
@@ -282,17 +383,298 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
                         <configuration>
                             <pkgs>
                                 <pkg>
-                                    <name>osx-arm</name>
-                                    <platform>osx-aarch64</platform>
+                                    <name>osx-intel</name>
+                                    <javafxBundled>true</javafxBundled>
+                                    <platform>osx-x86_64</platform>
                                     <version>${java.version}</version>
                                 </pkg>
                             </pkgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+
+        <profile>
+            <id>windows</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <configuration>
+                            <jreleaser>
+                                <environment>
+                                    <properties>
+                                        <!--
+                                            This is the prefix of the file found int target/jdks/<platform>/
+                                        -->
+                                        <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
+                                        <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
+                                    </properties>
+                                </environment>
+                                <assemble>
+                                    <jlink>
+                                        <javafx-skeleton-jlink>
+                                            <active>ALWAYS</active>
+                                            <targetJdks>
+                                                <targetJdk>
+                                                    <path>
+                                                        ${project.build.directory}/jdks/windows/{{jdkFilePrefix}}-win_x64
+                                                    </path>
+                                                    <platform>windows-x86_64</platform>
+                                                </targetJdk>
+                                            </targetJdks>
+                                            <jars>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/universal/*.jar</pattern>
+                                                </jar>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/windows/*.jar</pattern>
+                                                    <platform>windows-x86_64</platform>
+                                                </jar>
+                                            </jars>
+                                        </javafx-skeleton-jlink>
+                                    </jlink>
+                                    <jpackage>
+                                        <javafx-skeleton-installer>
+                                            <windows>
+                                                <types>msi</types>
+                                            </windows>
+                                        </javafx-skeleton-installer>
+                                    </jpackage>
+                                </assemble>
+                                <distributions>
+                                    <javafx-skeleton-installer>
+                                        <artifacts>
+                                            <artifact>
+                                                <path>{{jpackageDir}}/javafx-{{projectVersionNumber}}-windows-x86_64.msi</path>
+                                                <platform>windows-x86_64</platform>
+                                            </artifact>
+                                        </artifacts>
+                                    </javafx-skeleton-installer>
+                                </distributions>
+                            </jreleaser>
                         </configuration>
                         <executions>
                             <execution>
                                 <phase>package</phase>
                                 <goals>
-                                    <goal>setup-disco</goal>
+                                    <goal>assemble</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jdks-maven-plugin</artifactId>
+                        <version>${jreleaser-plugin.version}</version>
+                        <configuration>
+                            <pkgs>
+                                <pkg>
+                                    <name>windows</name>
+                                    <javafxBundled>true</javafxBundled>
+                                    <platform>windows-x86_64</platform>
+                                    <version>${java.version}</version>
+                                </pkg>
+                            </pkgs>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+
+        <profile>
+            <id>linux_intel_rpm</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <configuration>
+                            <jreleaser>
+                                <environment>
+                                    <properties>
+                                        <!--
+                                            This is the prefix of the file found int target/jdks/<platform>/
+                                        -->
+                                        <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
+                                        <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
+                                    </properties>
+                                </environment>
+                                <assemble>
+                                    <jlink>
+                                        <javafx-skeleton-jlink>
+                                            <active>ALWAYS</active>
+                                            <targetJdks>
+                                                <targetJdk>
+                                                    <path>
+                                                        ${project.build.directory}/jdks/linux/{{jdkFilePrefix}}-linux_x64
+                                                    </path>
+                                                    <platform>linux-x86_64</platform>
+                                                </targetJdk>
+                                            </targetJdks>
+                                            <jars>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/universal/*.jar</pattern>
+                                                </jar>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/linux/*.jar</pattern>
+                                                    <platform>linux-x86_64</platform>
+                                                </jar>
+                                            </jars>
+                                        </javafx-skeleton-jlink>
+                                    </jlink>
+                                    <jpackage>
+                                        <javafx-skeleton-installer>
+                                            <linux>
+                                                <types>rpm</types>
+                                            </linux>
+                                        </javafx-skeleton-installer>
+                                    </jpackage>
+                                </assemble>
+                                <distributions>
+                                    <javafx-skeleton-installer>
+                                        <artifacts>
+                                            <artifact>
+                                                <path>{{jpackageDir}}/javafx_skeleton-{{projectVersionNumber}}-1.x86_64.rpm</path>
+                                                <platform>linux-x86_64</platform>
+					    </artifact>
+                                        </artifacts>
+                                    </javafx-skeleton-installer>
+                                </distributions>
+                            </jreleaser>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assemble</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jdks-maven-plugin</artifactId>
+                        <version>${jreleaser-plugin.version}</version>
+                        <configuration>
+                            <jdks>
+                                <jdk>
+                                    <name>linux</name>
+                                    <platform>linux-x86_64</platform>
+                                    <url>https://cdn.azul.com/zulu/bin/zulu22.28.91-ca-fx-jdk22.0.0-linux_x64.tar.gz</url>
+                                    <checksum>faa52b67e1a5b2948fdd12d301b804b459b40747f35ff543d56525ea693673fd</checksum>
+                                </jdk>
+                            </jdks>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>download-jdks</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>setup-jdks</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <profile>
+            <id>linux_intel_deb</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jreleaser-maven-plugin</artifactId>
+                        <configuration>
+                            <jreleaser>
+                                <environment>
+                                    <properties>
+                                        <!--
+                                            This is the prefix of the file found int target/jdks/<platform>/
+                                        -->
+                                        <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
+                                        <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
+                                    </properties>
+                                </environment>
+                                <assemble>
+                                    <jlink>
+                                        <javafx-skeleton-jlink>
+                                            <active>ALWAYS</active>
+                                            <targetJdks>
+                                                <targetJdk>
+                                                    <path>
+                                                        ${project.build.directory}/jdks/linux/{{jdkFilePrefix}}-linux_x64
+                                                    </path>
+                                                    <platform>linux-x86_64</platform>
+                                                </targetJdk>
+                                            </targetJdks>
+                                            <jars>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/universal/*.jar</pattern>
+                                                </jar>
+                                                <jar>
+                                                    <pattern>${project.build.directory}/repositories/linux/*.jar</pattern>
+                                                    <platform>linux-x86_64</platform>
+                                                </jar>
+                                            </jars>
+                                        </javafx-skeleton-jlink>
+                                    </jlink>
+                                    <jpackage>
+                                        <javafx-skeleton-installer>
+                                            <linux>
+                                                <types>deb</types>
+                                            </linux>
+                                        </javafx-skeleton-installer>
+                                    </jpackage>
+                                </assemble>
+                                <distributions>
+                                    <javafx-skeleton-installer>
+                                        <artifacts>
+                                            <artifact>
+                                                <path>{{jpackageDir}}/javafx_skeleton-{{projectVersionNumber}}-1.x86_64.deb</path>
+                                                <platform>linux-x86_64</platform>
+                                            </artifact>
+                                        </artifacts>
+                                    </javafx-skeleton-installer>
+                                </distributions>
+                            </jreleaser>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>assemble</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
+                        <artifactId>jdks-maven-plugin</artifactId>
+                        <version>${jreleaser-plugin.version}</version>
+                        <configuration>
+                            <jdks>
+                                <jdk>
+                                    <name>linux</name>
+                                    <platform>linux-x86_64</platform>
+                                    <url>https://cdn.azul.com/zulu/bin/zulu22.28.91-ca-fx-jdk22.0.0-linux_x64.tar.gz</url>
+                                    <checksum>faa52b67e1a5b2948fdd12d301b804b459b40747f35ff543d56525ea693673fd</checksum>
+                                </jdk>
+                            </jdks>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>download-jdks</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>setup-jdks</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -300,5 +682,6 @@ Reference https://jreleaser.org/guide/latest/tools/jdks-maven.html
                 </plugins>
             </build>
         </profile>
+
     </profiles>
 </project>
