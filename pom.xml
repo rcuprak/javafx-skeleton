@@ -501,6 +501,38 @@
                 <plugins>
                     <plugin>
                         <groupId>org.jreleaser</groupId>
+                        <artifactId>jdks-maven-plugin</artifactId>
+                        <version>${jreleaser-plugin.version}</version>
+                        <configuration>
+                            <jdks>
+                                <jdk>
+                                    <name>linux</name>
+                                    <platform>linux-x86_64</platform>
+                                    <distribution>zulu</distribution>
+                                    <javafxBundled>true</javafxBundled>
+                                    <version>${java.version}</version>
+                                    <!--
+                                    <url>https://cdn.azul.com/zulu/bin/zulu22.28.91-ca-fx-jdk22.0.0-linux_x64.tar.gz</url>
+                                    <checksum>faa52b67e1a5b2948fdd12d301b804b459b40747f35ff543d56525ea693673fd</checksum>
+                                    -->
+                                </jdk>
+                            </jdks>
+                        </configuration>
+                        <!--
+                        <executions>
+                            <execution>
+                                <id>download-jdks</id>
+                                <phase>generate-resources</phase>
+                                <goals>
+                                    <goal>setup-jdks</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        -->
+
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
                         <configuration>
                             <jreleaser>
@@ -509,7 +541,7 @@
                                         <!--
                                             This is the prefix of the file found int target/jdks/<platform>/
                                         -->
-                                        <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
+                                        <jdkFilePrefix>zulu23.28.85-ca-fx-jdk23.0.0</jdkFilePrefix>
                                         <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
                                     </properties>
                                 </environment>
@@ -550,7 +582,7 @@
                                             <artifact>
                                                 <path>{{jpackageDir}}/javafx_skeleton-{{projectVersionNumber}}-1.x86_64.rpm</path>
                                                 <platform>linux-x86_64</platform>
-					    </artifact>
+					                        </artifact>
                                         </artifacts>
                                     </javafx-skeleton-installer>
                                 </distributions>
@@ -564,31 +596,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.jreleaser</groupId>
-                        <artifactId>jdks-maven-plugin</artifactId>
-                        <version>${jreleaser-plugin.version}</version>
-                        <configuration>
-                            <jdks>
-                                <jdk>
-                                    <name>linux</name>
-                                    <platform>linux-x86_64</platform>
-                                    <url>https://cdn.azul.com/zulu/bin/zulu22.28.91-ca-fx-jdk22.0.0-linux_x64.tar.gz</url>
-                                    <checksum>faa52b67e1a5b2948fdd12d301b804b459b40747f35ff543d56525ea693673fd</checksum>
-                                </jdk>
-                            </jdks>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>download-jdks</id>
-                                <phase>generate-resources</phase>
-                                <goals>
-                                    <goal>setup-jdks</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-
                     </plugin>
                 </plugins>
             </build>
