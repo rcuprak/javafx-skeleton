@@ -510,7 +510,7 @@
                                     <platform>linux-x86_64</platform>
                                     <distribution>zulu</distribution>
                                     <javafxBundled>true</javafxBundled>
-                                    <version>${java.version}</version>
+                                    <version>23.32.11</version>
                                 </pkg>
                             </pkgs>
                             <!--
