@@ -507,10 +507,11 @@
                             <pkgs>
                                 <pkg>
                                     <name>linux</name>
+                                    <archiveType>tar.gz</archiveType>
                                     <platform>linux-x86_64</platform>
                                     <distribution>zulu</distribution>
                                     <javafxBundled>true</javafxBundled>
-                                    <version>23.32.11</version>
+                                    <version>${java.version}</version>
                                 </pkg>
                             </pkgs>
                             <!--
