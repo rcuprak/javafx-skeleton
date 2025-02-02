@@ -213,6 +213,29 @@
                 <plugins>
                     <plugin>
                         <groupId>org.jreleaser</groupId>
+                        <artifactId>jdks-maven-plugin</artifactId>
+                        <version>${jreleaser-plugin.version}</version>
+                        <configuration>
+                            <pkgs>
+                                <pkg>
+                                    <!--
+                                        Download the JDK for the Mac
+                                        curl -X GET "https://api.foojay.io/disco/v3.0/packages?distro=zulu&version=23&javafx_bundled=true&package_type=jdk&latest=available" -H "accept: application/json" | python -m json.tool
+                                    -->
+                                    <!--
+                                        name becomes the directory name under jdks
+                                    -->
+                                    <name>osx-arm</name>
+                                    <distribution>zulu</distribution>
+                                    <javafxBundled>true</javafxBundled>
+                                    <platform>osx-aarch64</platform>
+                                    <version>${java.version}</version>
+                                </pkg>
+                            </pkgs>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jreleaser</groupId>
                         <artifactId>jreleaser-maven-plugin</artifactId>
                         <configuration>
                             <jreleaser>
@@ -221,7 +244,7 @@
                                         <!--
                                             This is the prefix of the file found int target/jdks/<platform>/
                                         -->
-                                        <jdkFilePrefix>zulu22.28.91-ca-fx-jdk22.0.0</jdkFilePrefix>
+                                        <jdkFilePrefix>zulu23.28.85-ca-fx-jdk23.0.0</jdkFilePrefix>
                                         <jpackageDir>out/jreleaser/assemble/javafx-skeleton-installer/jpackage</jpackageDir>
                                     </properties>
                                 </environment>
@@ -232,7 +255,7 @@
                                             <targetJdks>
                                                 <targetJdk>
                                                     <path>
-                                                        ${project.build.directory}/jdks/osx-arm/{{jdkFilePrefix}}-macosx_aarch64/zulu-22.jdk/Contents/Home
+                                                        ${project.build.directory}/jdks/osx-arm/{{jdkFilePrefix}}-macosx_aarch64/zulu-23.jdk/Contents/Home
                                                     </path>
                                                     <platform>osx-aarch_64</platform>
                                                 </targetJdk>
@@ -282,21 +305,6 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.jreleaser</groupId>
-                        <artifactId>jdks-maven-plugin</artifactId>
-                        <version>${jreleaser-plugin.version}</version>
-                        <configuration>
-                            <pkgs>
-                                <pkg>
-                                    <name>osx-arm</name>
-                                    <javafxBundled>true</javafxBundled>
-                                    <platform>osx-aarch64</platform>
-                                    <version>${java.version}</version>
-                                </pkg>
-                            </pkgs>
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
