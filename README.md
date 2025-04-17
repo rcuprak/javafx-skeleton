@@ -13,7 +13,7 @@ This example project produces the following bundles:
 ### Building
 
 **Requirements**
- - Java 23+ with JavaFX, this project is built and tested with Azul's Java distribution with JavaFX.
+ - Java 24+ with JavaFX, this project is built and tested with Azul's Java distribution with JavaFX.
  - Maven 3.9.0 (use the provided wrapper)
 
 1. Build the application
@@ -22,22 +22,22 @@ This example project produces the following bundles:
 ```
 2. Build for Mac
 ```
-./mvnw -Posx_arm 
+./mvnw -Posx_arm package
 
-./mvnw -Posx_intel
+./mvnw -Posx_intel package
 ```
 3. Build for Linux (rpm/deb)
 
 
 ```
-./mvnw -Plinux_intel_deb
+./mvnw -Plinux_intel_deb package
 
-./mvnw -Plinux_intel_rpm
+./mvnw -Plinux_intel_rpm package
 ```
 
 4. Build for Windows
 ```
-./mvnw -Pwindows
+./mvnw -Pwindows package
 ```
 
 To build rpm, you will need to install rpm-build:
